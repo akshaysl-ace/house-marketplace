@@ -9,6 +9,7 @@ import {
 } from 'firebase/auth';
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase.config';
+import { toast } from 'react-toastify';
 
 function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
@@ -36,7 +37,7 @@ function SignUp() {
       await setDoc(doc(db, 'users', user.uid), formDataCopy);
       navigate('/');
     } catch (err) {
-      console.log(err);
+      toast.error('Something went wrong with registration !');
     }
   };
 
@@ -57,7 +58,7 @@ function SignUp() {
     <>
       <div className='pageContainer'>
         <header>
-          <p className='pageHeader'>Welcome Back!</p>
+          <p className='pageHeader'>Go ahead and Sign Up..!</p>
         </header>
         <form onSubmit={onSubmit}>
           <input
@@ -95,9 +96,6 @@ function SignUp() {
               onClick={() => setShowPassword(prev => !prev)}
             />
           </div>
-          <Link to='/forgot' className='forgotPasswordLink'>
-            Forgot Password ?
-          </Link>
           <div className='signInBar'>
             <p className='signInText'>Sign Up</p>
             <button className='signInButton'>

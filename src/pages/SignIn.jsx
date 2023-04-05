@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg';
 import VisibilityIcon from '../assets/svg/visibilityIcon.svg';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { toast } from 'react-toastify';
 
 function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -39,7 +40,7 @@ function SignIn() {
         navigate('/signin');
       }
     } catch (err) {
-      console.log(err);
+      toast.error('Invalid credentials !');
     }
   };
 
@@ -48,6 +49,7 @@ function SignIn() {
       <div className='pageContainer'>
         <header>
           <p className='pageHeader'>Welcome Back!</p>
+          <p className='pageHeader'>Please Sign In to your account..</p>
         </header>
         <form onSubmit={onSubmit}>
           <input
