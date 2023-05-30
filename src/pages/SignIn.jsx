@@ -89,10 +89,10 @@ function SignIn() {
             </button>
           </div>
         </form>
-        <Link to='/signup' className='registerLink'>
-          Sign Up instead !
-        </Link>
         <OAuth />
+        <Link to='/signup' className='registerLink'>
+          Need an account ? Sign Up real quick !
+        </Link>
       </div>
     </>
   );

@@ -140,11 +140,11 @@ button {
 }
 
 .navbar {
-  position: fixed;
+  position: static;
   left: 0;
   bottom: 0;
   right: 0;
-  height: 85px;
+  height: 75px;
   background-color: #ffffff;
   z-index: 1000;
   display: flex;
@@ -288,7 +288,7 @@ button {
 }
 
 .registerLink {
-  margin: 0.5rem;
+  margin: 2rem;
   color: #00cc66;
   font-weight: 600;
   text-align: center;

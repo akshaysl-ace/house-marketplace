@@ -37,7 +37,7 @@ const OAuth = () => {
 
   return (
     <div className='socialLogin'>
-      <p>Sign {isSignInRoute ? 'In' : 'Up'} with</p>
+      <p>Or Sign {isSignInRoute ? 'In' : 'Up'} with</p>
       <button className='socialIconDiv' onClick={onGoogleClick}>
         <img className='socialIconImg' src={googleIcon} alt='googleIcon' />
       </button>
