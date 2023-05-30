@@ -17,7 +17,7 @@ function NavBar() {
     <footer className='navbar'>
       <div className='navbarNav'>
         <ul className='navbarListItems'>
-          <li className='navbarListItem' onClick={() => navigate('/explore')}>
+          <li className='navbarListItem' onClick={() => navigate('/')}>
             <ExploreIcon
               fill={pathMatchRoutes('/explore') ? '#2c2c2c' : '#8f8f8f'}
               width='36px'
