@@ -5,16 +5,16 @@ import {
   ref,
   getDownloadURL,
 } from 'firebase/storage';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase.config';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Loader from '../components/Loader';
 import { useRef } from 'react';
 import { toast } from 'react-toastify';
 import { v4 as uuid } from 'uuid';
 
-function CreateNewListing() {
+function EditListing() {
   const formDataState = {
     type: 'rent',
     name: '',
@@ -26,15 +26,18 @@ function CreateNewListing() {
     offer: false,
     regularPrice: 0,
     discountedPrice: 0,
-    images: {},
+    images: [],
     latitude: 0,
     longitude: 0,
   };
   const [formData, setFormData] = useState(formDataState);
+  const [listing, setListing] = useState(null);
   const [geoLocationEnabled] = useState(true);
   const [loading, setLoading] = useState(false);
+
   const auth = getAuth();
   const navigate = useNavigate();
+  const params = useParams();
   const isMounted = useRef(true);
 
   const {
@@ -52,6 +55,24 @@ function CreateNewListing() {
     latitude,
     longitude,
   } = formData;
+
+  useEffect(() => {
+    setLoading(true);
+    const fetchListing = async () => {
+      const docRef = doc(db, 'listings', params.listingId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setListing(docSnap.data());
+        setFormData({ ...docSnap.data(), address: docSnap.data().location });
+        setLoading(false);
+      } else {
+        navigate('/');
+        toast.error('Property does not exist !');
+      }
+    };
+
+    fetchListing();
+  }, [navigate, params.listingId]);
 
   useEffect(() => {
     if (isMounted) {
@@ -72,7 +93,14 @@ function CreateNewListing() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMounted]);
 
-  const onSubmitListing = async e => {
+  useEffect(() => {
+    if (listing && listing.userRef !== auth.currentUser.uid) {
+      toast.error('You cannot edit this post !');
+      navigate('/');
+    }
+  });
+
+  const onSaveAndUpdate = async e => {
     e.preventDefault();
     setLoading(true);
     if (discountedPrice >= regularPrice) {
@@ -80,7 +108,7 @@ function CreateNewListing() {
       toast.error('Discounted price must be less than regular price !');
       return;
     }
-    if (images.length > 6) {
+    if (typeof images === Array && images.length > 6) {
       setLoading(false);
       toast.error('Maximum 6 images can be uploaded !');
       return;
@@ -151,13 +179,16 @@ function CreateNewListing() {
       });
     };
 
-    const imageUrls = await Promise.all(
-      [...images].map(image => storeImage(image)),
-    ).catch(() => {
-      setLoading(false);
-      toast.error('Failed to upload images !');
-      return;
-    });
+    let imageUrls;
+    if (images && images.length > 0) {
+      imageUrls = await Promise.all(
+        [...images].map(image => storeImage(image)),
+      ).catch(() => {
+        setLoading(false);
+        toast.error('Failed to upload images !');
+        return;
+      });
+    }
 
     const formDataCopy = {
       ...formData,
@@ -167,14 +198,25 @@ function CreateNewListing() {
       location: address,
     };
 
+    if (!formDataCopy.imageUrls || formDataCopy.imageUrls.length === 0) {
+      delete formDataCopy.imageUrls;
+    }
     delete formDataCopy.images;
     delete formDataCopy.address;
     !formDataCopy.offer && delete formDataCopy.discountedPrice;
 
-    const docRef = await addDoc(collection(db, 'listings'), formDataCopy);
-    setLoading(false);
-    toast.success('Property listed successfully !');
-    navigate(`/category/${formDataCopy.type}/${docRef.id}`);
+    try {
+      const docRef = doc(db, 'listings', params.listingId);
+      await updateDoc(docRef, formDataCopy);
+      setLoading(false);
+      toast.success('Details saved and updated !');
+      navigate(`/category/${formDataCopy.type}/${docRef.id}`);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+      toast.error('Something went wrong ! Please try again.');
+      navigate(`/`);
+    }
   };
 
   const onMutate = e => {
@@ -202,10 +244,10 @@ function CreateNewListing() {
   return (
     <div className='profile'>
       <header>
-        <p className='pageHeader'>List out your property...</p>
+        <p className='pageHeader'>Edit Property Details</p>
       </header>
       <main>
-        <form onSubmit={onSubmitListing}>
+        <form onSubmit={onSaveAndUpdate}>
           <label className='formLabel'>Sell / Rent</label>
           <div className='formButtons'>
             <button
@@ -423,13 +465,13 @@ function CreateNewListing() {
             type='file'
             id='images'
             onChange={onMutate}
+            min='0'
             max='6'
             accept='.jpg,.png,.jpeg'
             multiple
-            required
           />
           <button type='submit' className='primaryButton createListingButton'>
-            Create Listing
+            Save and Update
           </button>
         </form>
       </main>
@@ -437,4 +479,4 @@ function CreateNewListing() {
   );
 }
 
-export default CreateNewListing;
+export default EditListing;

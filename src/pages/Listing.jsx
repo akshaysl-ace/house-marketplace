@@ -6,6 +6,13 @@ import { db } from '../firebase.config';
 import Loader from '../components/Loader';
 import shareIcon from '../assets/svg/shareIcon.svg';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import { A11y, Navigation, Pagination, Scrollbar } from 'swiper';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/swiper-bundle.css';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/scrollbar';
 
 function Listing() {
   const [listing, setListing] = useState(null);
@@ -30,10 +37,27 @@ function Listing() {
   if (loading) {
     return <Loader />;
   }
-  console.log('listing', listing);
 
   return (
     <main>
+      <Swiper
+        className='swiper-container'
+        slidesPerView={1}
+        pagination={{ clickable: true }}
+        modules={[Pagination, A11y, Navigation, Scrollbar]}>
+        {listing.imageUrls.map((url, index) => (
+          <SwiperSlide key={index}>
+            <div
+              className='swiperSlideDiv'
+              style={{
+                background: `url(${listing.imageUrls[index]}) center no-repeat`,
+                backgroundSize: 'cover',
+              }}>
+              Images
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
       <div
         className='shareIconDiv'
         onClick={() => {
@@ -85,7 +109,7 @@ function Listing() {
         <div className='leafletContainer'>
           <MapContainer
             style={{ height: '100%', width: '100%' }}
-            center={[listing.geoLocation?.lat, listing.geoLocation?.lng]}
+            center={[listing.geolocation?.lat, listing.geolocation?.lng]}
             zoom={13}
             scrollWheelZoom={false}>
             <TileLayer
@@ -93,7 +117,7 @@ function Listing() {
               url='https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png'
             />
             <Marker
-              position={[listing.geoLocation?.lat, listing.geoLocation?.lng]}>
+              position={[listing.geolocation?.lat, listing.geolocation?.lng]}>
               <Popup>{listing.location}</Popup>
             </Marker>
           </MapContainer>

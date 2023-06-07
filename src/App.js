@@ -13,6 +13,7 @@ import Category from "./pages/Category";
 import CreateNewListing from "./pages/CreateNewListing";
 import Listing from "./pages/Listing";
 import Contact from "./pages/Contact";
+import EditListing from "./pages/EditListing";
 
 function App() {
 
@@ -30,6 +31,7 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/forgot" element={<ForgotPasswordPage />} />
           <Route path="/create-listing" element={<CreateNewListing />} />
+          <Route path="/edit-listing/:listingId" element={<EditListing />} />
           <Route path="/contact/:landlordId" element={<Contact />} />
           <Route path="/category/:categoryName/:listingId" element={<Listing />} />
         </Routes>
